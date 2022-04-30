@@ -7,7 +7,9 @@ def get_information(row_number, data):  # get information about certain place
               data['ObjectAddress'][row_number][0]['Address'],
               data['WebSite'][row_number],
               'Часы работы:']
-    working_hours = [data['WorkingHours'][row_number][i]['DayWeek'] + ' ' + data['WorkingHours'][row_number][i]['WorkHours'] for i in range(7)]
+    working_hours = [
+        data['WorkingHours'][row_number][i]['DayWeek'] + ' ' + data['WorkingHours'][row_number][i]['WorkHours'] for i in
+        range(7)]
     answer = answer + working_hours
     if 'ClarificationOfWorkingHours' in data.columns and str(data['ClarificationOfWorkingHours'][row_number]) != 'nan':
         answer.append(data['ClarificationOfWorkingHours'][row_number])
@@ -25,12 +27,16 @@ def get_random_places(data, number=1):  # returns information about random place
         answer[i] = place
     return [get_information(answer[i], data) for i in range(number_of_places)]
 
+
 def get_information_about_certain_place(data, name):
-    if len(data[data['FullName'].str.contains(name)].index > 0):
-      ind = data[data['FullName'].str.contains(name)].index[0]
-      return [get_information(ind, data)]
+    temp_data = data
+    temp_data['Name'] = temp_data['CommonName'].str.lower()
+    temp_data = temp_data[temp_data['Name'].str.contains(name)]
+    if len(temp_data.index > 0):
+        ind = temp_data.index[0]
+        return [get_information(ind, data)]
     else:
-      return ['Место не найдено :(']
+        return ['Место не найдено :(']
 
 
 def get_places_in_certain_area(main_data, area_name, number):  # returns numbers of random places in certain area
@@ -45,4 +51,3 @@ def get_places_in_certain_area(main_data, area_name, number):  # returns numbers
             place = rd.randint(0, len(data.index) - 1)
         answer[i] = place
     return [get_information(answer[i], data) for i in range(number_of_places)]
-
