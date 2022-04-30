@@ -4,11 +4,14 @@ import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from information import get_random_places
-
+activities = ['cinemas', 'theaters', 'museums', 'galaies', 'food', 'libraries']
 bot = Bot(token="5371672546:AAHX2cVPhqXQ-R5q4SAxOMsVMknNhblnXjQ")
 dp = Dispatcher(bot)
 logging.basicConfig(level=logging.INFO)
 activity =0
+find_by_name = False
+find_by_distict = False
+find_by_distance_to_centre = False
 
 
 @dp.message_handler(commands="start")
@@ -24,7 +27,12 @@ async def start(message: types.Message):
 
 @dp.message_handler(Text(equals="1"))
 async def get_information(message):
-    await message.answer(activity)
+    # print(message)
+    # if (message["from"]["username"] == "ploddd"):
+    #     await message.answer("лохушка")
+    global find_by_name
+    find_by_name = True
+    await message.answer("Введите название места без кавычек через пробел")
 
 @dp.message_handler(Text(equals="2"))
 async def make_random(message):
@@ -33,15 +41,40 @@ async def make_random(message):
     keyboard.add(*buttons)
     await message.answer("Выберите, сколько вариантов хотите получить", reply_markup=keyboard)
 
+@dp.message_handler(Text(equals="3"))
+async def get_in_district(message):
+    find_by_distict = True
+    pass
+
 @dp.message_handler(Text(equals="5 вариантов"))
 async def get_5(message):
-    museums = pd.read_json('data/museums.json')
+    museums = pd.read_json(f'data/{activities[activity - 1]}.json')
     answer1 = get_random_places(museums, 5)
+    print(answer1)
     for i in range(5):
+        await message.answer('\n'.join(answer1[i]))
+
+@dp.message_handler(Text(equals="1 вариант"))
+async def get_1(message):
+    global activities
+    global activity
+    museums = pd.read_json(f'data/{activities[activity - 1]}.json')
+    answer1 = get_random_places(museums, 1)
+    for i in range(1):
+        await message.answer('\n'.join(answer1[i]))
+
+@dp.message_handler(Text(equals="10 вариантов"))
+async def get_10(message):
+    museums = pd.read_json(f'data/{activities[activity - 1]}.json')
+    answer1 = get_random_places(museums, 10)
+    for i in range(10):
         await message.answer('\n'.join(answer1[i]))
 
 @dp.message_handler()
 async def choose(message):
+    global find_by_name
+    global find_by_distict
+    global find_by_distance_to_centre
     global activity
     if message.text == "кинотеатр":
         activity = 1
@@ -55,6 +88,10 @@ async def choose(message):
         activity = 5
     elif message.text == "библиотека":
         activity = 6
+    elif find_by_name:
+        await message.answer("Сейчас будет")
+        find_by_name = False
+        return
     await message.reply("Отличный выбор!")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = ["1", "2", "3", "4"]
