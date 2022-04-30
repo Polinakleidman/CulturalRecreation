@@ -20,7 +20,8 @@ async def get_n(message, n):
     answer1 = get_random_places(places, n)
     print(answer1)
     for i in range(n):
-        await message.answer('\n'.join(answer1[i]))
+        await message.answer('\n'.join(answer1[i][:]))
+        # await message.answer('https://' + answer1[i][0])
 
 def create_number_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
