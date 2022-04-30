@@ -1,11 +1,11 @@
 import pandas as pd
-from information import get_information
+from information import get_information, get_random_in_district
 import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from information import get_random_places, get_information_about_certain_place
 
-activities = ['cinemas', 'theaters', 'museums', 'galaies', 'food', 'libraries']
+activities = ['cinemas', 'theaters', 'museums', 'galleries', 'food', 'libraries']
 bot = Bot(token="5371672546:AAHX2cVPhqXQ-R5q4SAxOMsVMknNhblnXjQ")
 dp = Dispatcher(bot)
 logging.basicConfig(level=logging.INFO)
@@ -19,17 +19,25 @@ from_centre =0
 
 async def get_n(message, n):
     places = pd.read_json(f'data/{activities[activity - 1]}.json')
+    if activity == 5:
+        places['CommonName'] = places['Name']
+        places['WebSite'] = ['' for i in range(len(places.index))]
+        places['Area'] = places['AdmArea']
+    else:
+        places['Address'] = [places['ObjectAddress'][i][0]['Address'] for i in range(len(places.index))]
+        places['Area'] = [places['ObjectAddress'][i][0]['AdmArea'].lower().split()[0] for i in range(len(places.index))]
     if (not find_by_distict) and (not find_by_distance_to_centre):
         answer1 = get_random_places(places, n)
     elif find_by_distict:
         global curr_district
         answer1 = []
-        #answer1 = get_random_in_district(curr_district, n)
+        answer1 = get_random_in_district(places, curr_district, n)
+        print(answer1)
     else:
         global from_centre
         answer1 = []
         #answer1 = get_random_in_area(from_centre, n)
-    for i in range(n):
+    for i in range(len(answer1)):
         await message.answer('\n'.join(answer1[i]))
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = ["/start"]
@@ -105,7 +113,7 @@ async def get_in_district(message):
     find_by_distance_to_centre = False
     find_by_name = False
     keyboard = make_disrict_keyboard()
-    await message.answer("Укажите желаемый округ", reply_markup=keyboard)
+    await message.answer("Выберите или введите желаемый округ", reply_markup=keyboard)
     pass
 
 @dp.message_handler(Text(equals="4"))
@@ -156,6 +164,13 @@ async def choose(message):
         return
     elif find_by_name:
         place = pd.read_json(f'data/{activities[activity - 1]}.json')
+        if activity == 5:
+            place['CommonName'] = place['Name']
+            place['WebSite'] = ['' for i in range(len(place.index))]
+            place['Area'] = place['AdmArea']
+        else:
+            place['Address'] = [place['ObjectAddress'][i][0]['Address'] for i in range(len(place.index))]
+            place['Area'] = [place['ObjectAddress'][i][0]['AdmArea'].lower().split()[0] for i in range(len(place.index))]
         answer1 = get_information_about_certain_place(place, message.text)
         for i in range(len(answer1)):
             await message.answer('\n'.join(answer1[i]))
