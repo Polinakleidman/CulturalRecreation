@@ -113,7 +113,7 @@ async def choose(message):
 #     await message.reply("Так невкусно!")
 
 
-if __name__ == "__main__":
+if name == "main":
     executor.start_polling(dp, skip_updates=True)
 #
 # museums = pd.read_json('data/museums.json')
