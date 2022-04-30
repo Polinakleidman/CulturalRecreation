@@ -46,7 +46,10 @@ async def start(message: types.Message):
 
 @dp.message_handler(Text(equals="1"))
 async def get_information(message):
-    global find_by_name
+    global find_by_name, find_by_distict, find_by_distance_to_centre
+    find_by_distict = False
+    find_by_distance_to_centre = False
+    find_by_name = True
     find_by_name = True
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = ["/start"]
@@ -98,7 +101,6 @@ async def choose(message):
         answer1 = get_information_about_certain_place(museums, message.text)
 
         await message.answer('\n'.join(answer1[0]))
-        find_by_name = False
         await start(message)
         return
     await message.reply("Отличный выбор!")
