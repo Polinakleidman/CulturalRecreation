@@ -30,9 +30,13 @@ def get_random_places(data, number=1):  # returns information about random place
 
 def get_information_about_certain_place(data, name):
     temp_data = data
+    flag = False
     temp_data['Name'] = temp_data['CommonName'].str.lower()
-    for name1 in list(filter(lambda x: x.isalpha() and len(x) > 2, name.lower().split())):
+    for name1 in list(filter(lambda x: (x.isalpha() and len(x) > 2) or x.isdigit(), name.lower().split())):
+        flag = True
         temp_data = temp_data[temp_data['Name'].str.contains(name1)]
+    if not flag:
+        return ['Мы не поняли запрос, поэтому подобрали вам рандомное место:\n'] + get_information(rd.randint(0, len(temp_data.index) - 1), data)
     if len(temp_data.index > 0):
         ind = temp_data.index[0]
         return [get_information(ind, data)]
