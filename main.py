@@ -169,7 +169,7 @@ async def choose(message):
         return
     elif find_by_distance_to_centre:
         global from_centre
-        from_centre = int(message.text)
+        from_centre = int(message.text[:-3])
         keyboard = create_number_keyboard()
         await message.answer("Выберите, сколько вариантов хотите получить", reply_markup=keyboard)
     await message.reply("Отличный выбор!")
