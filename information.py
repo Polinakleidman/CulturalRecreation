@@ -31,7 +31,7 @@ def get_random_places(data, number=1):  # returns information about random place
 def get_information_about_certain_place(data, name):
     temp_data = data
     temp_data['Name'] = temp_data['CommonName'].str.lower()
-    for name1 in list(filter(lambda x: x.isalpha() and len(x) > 2, name.lower().split())):
+    for name1 in list(filter(lambda x: (x.isalpha() and len(x) > 2) or x.isdigit(), name.lower().split())):
         temp_data = temp_data[temp_data['Name'].str.contains(name1)]
     if len(temp_data.index > 0):
         ind = temp_data.index[0]

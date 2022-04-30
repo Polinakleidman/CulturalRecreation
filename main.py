@@ -63,7 +63,11 @@ async def make_random(message):
 
 @dp.message_handler(Text(equals="3"))
 async def get_in_district(message):
+    global find_by_name, find_by_distict, find_by_distance_to_centre
     find_by_distict = True
+    find_by_distance_to_centre = False
+    find_by_name = False
+    
     pass
 
 @dp.message_handler(Text(equals="5 вариантов"))
