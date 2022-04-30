@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 def find_coordinates(adress): # строка формата 'город Москва, улица Арбат, дом 55/32'
     list_adress = adress.split(', ')
@@ -6,7 +7,20 @@ def find_coordinates(adress): # строка формата 'город Моск
     geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={adress}&format=json"
     response = requests.get(geocoder_request)
     json_response = response.json()
-    print(json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'])
+    return json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
+
+
+data = pd.read_json('data/food.json')
+data = data[:500]
+coord = []
+# data = data[data['Address'].str.contains('улица')]
+for i in range(len(data.index)):
+    print(i)
+    print(data['Address'][i])
+    coord.append(find_coordinates(data['Address'][i]))
+data['Coordinates'] = coord
+data.to_json('data/food.json')
+
 
 
 find_coordinates('город Москва, улица Арбат, дом 55/32')

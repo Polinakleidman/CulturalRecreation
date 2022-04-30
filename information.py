@@ -1,6 +1,8 @@
 import pandas as pd
 import random as rd
 
+CITY_X = 37.617734
+CITY_Y = 55.752004
 
 def get_information(row_number, data):  # get information about certain place
     answer = [data['CommonName'][row_number],
@@ -76,8 +78,25 @@ def get_random_in_district(data, area_name, number=1): # returns numbers of rand
     return [get_information(answer[i], data) for i in range(number)]
 
 
-
-
+def get_5km_from_city_center(data, number=1):
+    temp_data = data
+    dist = []
+    for i in range(len(data.index)):
+        dist.append((((float(data['Coordinates'].split()[0]) - CITY_X) ** 2
+                      + (float(data['Coordinates'].split()[1]) - CITY_Y) ** 2) ** 0.5) * 111.1)
+    temp_data['Dist'] = dist
+    index_list = temp_data[temp_data['Dist'] < 5].index
+    if number > len(index_list):
+        number = len(index_list)
+        return [['В этом округе не так много мест, поэтому вот они слева направо:\n']] + \
+               [get_information(index_list[i], data) for i in range(len(index_list))]
+    answer = [0] * number
+    for i in range(number):
+        place = rd.randint(0, len(index_list) - 1)
+        while place in answer:
+            place = rd.randint(0, len(index_list) - 1)
+        answer[i] = place
+    return [get_information(answer[i], data) for i in range(number)]
 
 
 
