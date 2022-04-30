@@ -3,7 +3,7 @@ from information import get_information, get_random_in_district
 import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
-from information import get_random_places, get_information_about_certain_place
+from information import get_random_places, get_information_about_certain_place, get_km_from_city_center
 
 activities = ['cinemas', 'theaters', 'museums', 'galleries', 'food', 'libraries']
 bot = Bot(token="5371672546:AAHX2cVPhqXQ-R5q4SAxOMsVMknNhblnXjQ")
@@ -14,7 +14,7 @@ find_by_name = False
 find_by_distict = False
 find_by_distance_to_centre = False
 curr_district = ""
-from_centre =0
+from_centre = 0
 
 
 async def get_n(message, n):
@@ -30,13 +30,10 @@ async def get_n(message, n):
         answer1 = get_random_places(places, n)
     elif find_by_distict:
         global curr_district
-        answer1 = []
         answer1 = get_random_in_district(places, curr_district, n)
-        print(answer1)
     else:
         global from_centre
-        answer1 = []
-        #answer1 = get_random_in_area(from_centre, n)
+        answer1 = get_km_from_city_center(places, from_centre, n)
     for i in range(len(answer1)):
         await message.answer('\n'.join(answer1[i]))
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -50,6 +47,7 @@ def create_number_keyboard():
     buttons = ["1 вариант", "5 вариантов", "10 вариантов"]
     keyboard.add(*buttons)
     return keyboard
+
 
 def make_dist_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -69,6 +67,7 @@ def make_disrict_keyboard():
     keyboard.add(*buttons2)
     keyboard.add(*buttons3)
     return keyboard
+
 
 @dp.message_handler(commands="start")
 async def start(message: types.Message):
@@ -116,14 +115,15 @@ async def get_in_district(message):
     await message.answer("Выберите или введите желаемый округ", reply_markup=keyboard)
     pass
 
+
 @dp.message_handler(Text(equals="4"))
-async  def get_by_distance_to_centre(message):
+async def get_by_distance_to_centre(message):
     global find_by_name, find_by_distict, find_by_distance_to_centre
     find_by_distict = False
     find_by_distance_to_centre = True
     find_by_name = False
     keyboard = make_dist_keyboard()
-    await message.answer("Укажите желаемый округ", reply_markup=keyboard)
+    await message.answer("Укажите желаемое расстояние до центра", reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals="5 вариантов"))
@@ -170,7 +170,8 @@ async def choose(message):
             place['Area'] = place['AdmArea']
         else:
             place['Address'] = [place['ObjectAddress'][i][0]['Address'] for i in range(len(place.index))]
-            place['Area'] = [place['ObjectAddress'][i][0]['AdmArea'].lower().split()[0] for i in range(len(place.index))]
+            place['Area'] = [place['ObjectAddress'][i][0]['AdmArea'].lower().split()[0] for i in
+                             range(len(place.index))]
         answer1 = get_information_about_certain_place(place, message.text)
         for i in range(len(answer1)):
             await message.answer('\n'.join(answer1[i]))
@@ -187,6 +188,11 @@ async def choose(message):
         from_centre = int(message.text[:-3])
         keyboard = create_number_keyboard()
         await message.answer("Выберите, сколько вариантов хотите получить", reply_markup=keyboard)
+        return
+    else:
+        await message.answer("Я вас не понимаю, начните снова, пожалуйста")
+        await start(message)
+        return
     await message.reply("Отличный выбор!")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = ["1", "2", "3", "4"]
@@ -201,6 +207,3 @@ async def choose(message):
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
-#
-# museums = pd.read_json('data/museums.json')
-# print('\n'.join(get_information(5, museums)))

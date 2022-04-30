@@ -4,6 +4,7 @@ import random as rd
 CITY_X = 37.617734
 CITY_Y = 55.752004
 
+
 def get_information(row_number, data):  # get information about certain place
     answer = [data['CommonName'][row_number],
               data['Address'][row_number],
@@ -11,7 +12,7 @@ def get_information(row_number, data):  # get information about certain place
     if 'WorkingHours' in data.columns:
         working_hours = ['Часы работы']
         working_hours += [data['WorkingHours'][row_number][i]['DayWeek']
-                        + ' ' + data['WorkingHours'][row_number][i]['WorkHours'] for i in range(7)]
+                          + ' ' + data['WorkingHours'][row_number][i]['WorkHours'] for i in range(7)]
         answer = answer + working_hours
 
     if 'ClarificationOfWorkingHours' in data.columns and str(data['ClarificationOfWorkingHours'][row_number]) != 'nan':
@@ -39,7 +40,8 @@ def get_information_about_certain_place(data, name):
         flag = True
         temp_data = temp_data[temp_data['Name'].str.contains(name1)]
     if not flag:
-        return [['Мы не поняли запрос, поэтому подобрали вам рандомное место:\n']] + [get_information(rd.randint(0, len(temp_data.index) - 1), data)]
+        return [['Мы не поняли запрос, поэтому подобрали вам рандомное место:\n']] + [
+            get_information(rd.randint(0, len(temp_data.index) - 1), data)]
     if len(temp_data.index) > 0:
         ind = temp_data.index[0]
         return [get_information(ind, data)]
@@ -47,7 +49,7 @@ def get_information_about_certain_place(data, name):
         return [['Место не найдено :(']]
 
 
-def get_random_in_district(data, area_name, number=1): # returns numbers of random places in certain area
+def get_random_in_district(data, area_name, number=1):  # returns numbers of random places in certain area
     temp_data = data
     areas = list(set(temp_data['Area']))
     name = area_name.lower()
@@ -74,18 +76,18 @@ def get_random_in_district(data, area_name, number=1): # returns numbers of rand
         place = rd.randint(0, len(index_list) - 1)
         while place in answer:
             place = rd.randint(0, len(index_list) - 1)
-        answer[i] = place
+        answer[i] = index_list[place]
     return [get_information(answer[i], data) for i in range(number)]
 
 
-def get_5km_from_city_center(data, number=1):
+def get_km_from_city_center(data, max_dist, number=1):
     temp_data = data
     dist = []
     for i in range(len(data.index)):
-        dist.append((((float(data['Coordinates'].split()[0]) - CITY_X) ** 2
-                      + (float(data['Coordinates'].split()[1]) - CITY_Y) ** 2) ** 0.5) * 111.1)
+        dist.append((((float(data['Coordinates'][i].split()[0]) - CITY_X) ** 2
+                      + (float(data['Coordinates'][i].split()[1]) - CITY_Y) ** 2) ** 0.5) * 111.1 / 1.5)
     temp_data['Dist'] = dist
-    index_list = temp_data[temp_data['Dist'] < 5].index
+    index_list = temp_data[temp_data['Dist'] < max_dist].index
     if number > len(index_list):
         number = len(index_list)
         return [['В этом округе не так много мест, поэтому вот они слева направо:\n']] + \
@@ -95,8 +97,6 @@ def get_5km_from_city_center(data, number=1):
         place = rd.randint(0, len(index_list) - 1)
         while place in answer:
             place = rd.randint(0, len(index_list) - 1)
-        answer[i] = place
+        answer[i] = index_list[place]
+    print(temp_data['Dist'][answer[0]])
     return [get_information(answer[i], data) for i in range(number)]
-
-
-
