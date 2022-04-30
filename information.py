@@ -25,6 +25,7 @@ def get_random_places(data, number=1):  # returns information about random place
         answer[i] = place
     return [get_information(answer[i], data) for i in range(number_of_places)]
 
+
 def get_information_about_certain_place(data, name):
     if len(data[data['FullName'].str.contains(name)].index > 0):
       ind = data[data['FullName'].str.contains(name)].index[0]
