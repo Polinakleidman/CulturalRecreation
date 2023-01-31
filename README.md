@@ -20,6 +20,9 @@ Our bot can help you to solve this hard task and can offer:
       * get random list of 1/5/10 places
       * choose appropriate district and get list of 1/5/10 places in this area
       * choose distance from the center of Moscow and het a list of 1/5/10 places in this area
+
+P.S. unfortunately it doesn't work now because we don't pay for hosting)))
+
 ## Telegram-bot для выбора вечернего досуга
 
 Часто нам трудно определиться с выбором, как провести вечер в компании друзей.<br/>
